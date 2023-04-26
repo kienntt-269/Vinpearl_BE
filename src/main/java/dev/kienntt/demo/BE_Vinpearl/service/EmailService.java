@@ -41,5 +41,16 @@ public class EmailService {
         helper.addInline("image001", resource);
 
         emailSender.send(message);
+//        MimeMessage message = emailSender.createMimeMessage();
+//
+//        message.setFrom(new InternetAddress(to));
+////        message.setRecipients(MimeMessage.RecipientType.TO, "recipient@example.com");
+//        message.setSubject(subject);
+//
+//        String htmlContent = String.format("<h1>This is a test Spring Boot email</h1>" +
+//                "<p>It can contain <strong>%s</strong> content.</p>", body);
+//        message.setContent(htmlContent, "text/html; charset=utf-8");
+//
+//        emailSender.send(message);
     }
 }

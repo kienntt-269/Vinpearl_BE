@@ -50,8 +50,8 @@ public class BookingTourController {
     }
 
     @PutMapping("/check-payment-tour-ok/{code}")
-    public ResponseMessage checkPaymentTourOk(@PathVariable("code") String code, @RequestBody Long id) {
-        bookingTourService.checkPaymentOk(code, id);
+    public ResponseMessage checkPaymentTourOk(@PathVariable("code") String code, @RequestBody BookingTour bookingTour) {
+        bookingTourService.checkPaymentOk(code, bookingTour);
         return new ResponseMessage(200, "OK", "", null);
     }
 

@@ -8,7 +8,6 @@ import dev.kienntt.demo.BE_Vinpearl.domain.request.SearchExportRequest;
 import dev.kienntt.demo.BE_Vinpearl.model.*;
 import dev.kienntt.demo.BE_Vinpearl.repository.*;
 import dev.kienntt.demo.BE_Vinpearl.service.BookingTourService;
-import dev.kienntt.demo.BE_Vinpearl.service.EmailService;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.ss.util.CellRangeAddress;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
@@ -18,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -61,9 +59,6 @@ public class BookingTourServiceImpl implements BookingTourService {
     private RoomRepository roomRepository;
     @Autowired
     private TourRepository tourRepository;
-
-    @Autowired
-    private EmailService emailService;
 
     @Override
     public Iterable findAll() {
@@ -233,17 +228,15 @@ public class BookingTourServiceImpl implements BookingTourService {
 
     @Override
     @Transactional
-    public BookingTour checkPaymentOk(String code, Long id) {
+    public BookingTour checkPaymentOk(String code, BookingTour bookingTourDetails) {
         // Code to book hotel
         BookingTour bookingTour = bookingTourRepository.findByPaymentCode(code);
 
-        Optional<BookingTour> bookingTourDetails = bookingTourRepository.findById(id);
-
-        Long roomId = bookingTourDetails.get().getRoomId();
+        Long roomId = bookingTourDetails.getRoomId();
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room ID cannot be null."));
 
-        Long customerId = bookingTourDetails.get().getCustomerId();
+        Long customerId = bookingTourDetails.getCustomerId();
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer ID cannot be null."));
 
@@ -263,40 +256,6 @@ public class BookingTourServiceImpl implements BookingTourService {
 //        }
 
 //        bookingRoom.setService(bookingRoomDetails.getService());
-        DecimalFormat decimalFormat = new DecimalFormat("#,##0");
-        String formattedPrice = decimalFormat.format(bookingTour.getPaymentAmount());
-        String formattedPriceWithDot = formattedPrice.replace(",", ".");
-        // Send confirmation email
-//        String to = customer.getEmail();
-        String to = "kienntt.iist@gmail.com";
-        String subject = "Xác nhận thông tin đơn đặt tour của bạn";
-        String text = "Kính gửi " + customer.getFullName() + ",\n" +
-                "\n" +
-                "Cảm ơn bạn đã đặt tour tại Vinpearl. Chúng tôi xin xác nhận rằng thông tin đơn đặt tour của bạn đã được nhận và đang được xử lý.\n" +
-                "\n" +
-                "Thông tin chi tiết về tour của bạn như sau:\n" +
-                "\n" +
-                "Tên tour: " + tour.get().getName() + "\n" +
-                "Ngày khởi hành: " + tour.get().getStartDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + "\n" +
-                "Ngày kết thúc: " + tour.get().getEndDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")) + "\n" +
-                "Số lượng khách: " + bookingTour.getNumberAdult() + bookingTour.getNumberChildren() + "\n" +
-                "Tổng giá trị tour: " + formattedPriceWithDot + " VNĐ \n" +
-                "\n" +
-                "Xin hãy kiểm tra kỹ thông tin trên và liên hệ với chúng tôi ngay nếu có bất kỳ sai sót nào.\n" +
-                "\n" +
-                "Để hoàn tất quá trình đặt tour, bạn vui lòng xác nhận thông tin của mình bằng cách truy cập vào đường link sau: " + bookingTour.getTour().getName() + "\n" +
-                "\n" +
-                "Xin lưu ý rằng đường link xác nhận chỉ có giá trị trong vòng 24 giờ kể từ khi email này được gửi. Sau thời gian này, đường link sẽ hết hạn và bạn sẽ phải đặt tour lại từ đầu.\n" +
-                "\n" +
-                "Một lần nữa, cảm ơn bạn đã đặt tour tại công ty chúng tôi. Nếu bạn có bất kỳ câu hỏi hoặc yêu cầu nào khác, xin vui lòng liên hệ với chúng tôi.\n" +
-                "\n" +
-                "Trân trọng,\n" +
-                "Vinpearl";
-        try {
-            emailService.sendEmail(to, subject, text);
-        } catch (MessagingException e) {
-            throw new RuntimeException("Error sending email");
-        }
         return bookingTourRepository.save(bookingTour);
     }
 

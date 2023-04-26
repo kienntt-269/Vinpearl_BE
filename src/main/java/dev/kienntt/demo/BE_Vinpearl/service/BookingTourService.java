@@ -43,7 +43,7 @@ public interface BookingTourService {
 
     BookingTour saveBookingTour(BookingTour bookingTour) throws UnsupportedEncodingException;
 
-    BookingTour checkPaymentOk(String code, Long id);
+    BookingTour checkPaymentOk(String code, BookingTour bookingTourDetails);
 
     public byte[] exportToExcel(List<BookingTour> bookingTours, LocalDate startDate, LocalDate endDate, HttpServletResponse response) throws IOException;
 

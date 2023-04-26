@@ -17,7 +17,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import javax.mail.MessagingException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
@@ -414,15 +413,15 @@ public class BookingServiceImpl implements BookingRoomService {
 
     @Override
     @Transactional
-    public BookingRoom checkPaymentOk(String code, Long id) {
+    public BookingRoom checkPaymentOk(String code, BookingRoom bookingRoomDetails) {
         // Code to book hotel
         BookingRoom bookingRoom = bookingRoomRepository.findByPaymentCode(code);
-        Optional<BookingRoom> bookingRoomDetails = bookingRoomRepository.findById(id);
-        Long roomId = bookingRoomDetails.get().getRoomId();
+
+        Long roomId = bookingRoomDetails.getRoomId();
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new RuntimeException("Room ID cannot be null."));
 
-        Long customerId = bookingRoomDetails.get().getCustomerId();
+        Long customerId = bookingRoomDetails.getCustomerId();
         Customer customer = customerRepository.findById(customerId)
                 .orElseThrow(() -> new RuntimeException("Customer ID cannot be null."));
 
